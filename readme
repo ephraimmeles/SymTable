@@ -55,7 +55,7 @@ What warnings does splint generate on symtablelist.c, and what are your
 disagreements with them? Copy the splint warnings here, and express your
 disagreement after each warning. If there are no warnings, then write
 "None."
-
+None
 
 
 ------------------------------------------------------------------------
@@ -63,7 +63,7 @@ What warnings does critTer generate on symtablelist.c, and what are your
 disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
-
+None
 
 
 ------------------------------------------------------------------------
@@ -96,11 +96,11 @@ The linked list implementation with:
 -- 500000 bindings consumed ___killed_____ seconds.
 
 The non-expanding hash table implementation with:
--- 50 bindings consumed ________ seconds.
--- 500 bindings consumed ________ seconds.
--- 5000 bindings consumed ________ seconds.
--- 50000 bindings consumed ________ seconds.
--- 500000 bindings consumed ________ seconds.
+-- 50 bindings consumed ___0_____ seconds.
+-- 500 bindings consumed ___0_____ seconds.
+-- 5000 bindings consumed ___ 0.012571_____ seconds.
+-- 50000 bindings consumed ___0.412197_____ seconds.
+-- 500000 bindings consumed ___70.352475_____ seconds.
 
 The expanding hash table implementation with:
 -- 50 bindings consumed ________ seconds.
