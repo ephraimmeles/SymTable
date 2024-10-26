@@ -103,8 +103,8 @@ The non-expanding hash table implementation with:
 -- 500000 bindings consumed ___70.352475_____ seconds.
 
 The expanding hash table implementation with:
--- 50 bindings consumed ________ seconds.
--- 500 bindings consumed ________ seconds.
--- 5000 bindings consumed ________ seconds.
--- 50000 bindings consumed ________ seconds.
--- 500000 bindings consumed ________ seconds.
+-- 50 bindings consumed ____0____ seconds.
+-- 500 bindings consumed ___0_____ seconds.
+-- 5000 bindings consumed __ 0.007325______ seconds.
+-- 50000 bindings consumed ___0.412568_____ seconds.
+-- 500000 bindings consumed ___68.274124_____ seconds.
