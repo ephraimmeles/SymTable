@@ -35,8 +35,6 @@ struct SymTable {
     size_t nodeQuantity;
 };
 
-/*--------------------------------------------------------------------*/
-
 /*
  * symtablehash_hashFunction:
  * Calculates the hash code for a given key.
@@ -57,8 +55,6 @@ static unsigned int symtablehash_hashFunction(const char *pcKey) {
     }
     return hash % BUCKET_COUNT;
 }
-
-/*--------------------------------------------------------------------*/
 
 /* 
  * SymTable_new:
@@ -82,8 +78,6 @@ SymTable_T SymTable_new(void) {
     return oSymTable;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_getLength:
  * Returns the number of bindings in the SymTable.
@@ -96,8 +90,6 @@ size_t SymTable_getLength(SymTable_T oSymTable) {
     assert(oSymTable != NULL);
     return oSymTable->nodeQuantity;
 }
-
-/*--------------------------------------------------------------------*/
 
 /* 
  * SymTable_free:
@@ -124,8 +116,6 @@ void SymTable_free(SymTable_T oSymTable) {
     }
     free(oSymTable);
 }
-
-/*--------------------------------------------------------------------*/
 
 /* 
  * SymTable_put:
@@ -174,8 +164,6 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
     return 1;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_replace:
  * Replaces the value of an existing key in the SymTable.
@@ -208,8 +196,6 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
     return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_contains:
  * Checks if the SymTable contains a specified key.
@@ -237,8 +223,6 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey) {
     return 0;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_get:
  * Returns the value associated with the specified key or NULL if not found.
@@ -265,8 +249,6 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey) {
     return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_remove:
  * Removes the key-value pair with the specified key from the SymTable.
@@ -286,4 +268,34 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey) {
     index = symtablehash_hashFunction(pcKey);
 
     psCurrentNode = oSymTable->buckets[index];
+    
+    /* Traverse the linked list in the appropriate bucket */
+    while (psCurrentNode != NULL) {
+        if (strcmp(pcKey, psCurrentNode->pcKey) == 0) {
+            /* Found the key, prepare to remove the node */
+            oldValue = (void*)psCurrentNode->pvValue;
+
+            /* Adjust pointers to remove the node */
+            if (psPrevNode == NULL) {
+                /* Removing the first node in the bucket */
+                oSymTable->buckets[index] = psCurrentNode->psNextNode;
+            } else {
+                /* Removing a node in the middle or end */
+                psPrevNode->psNextNode = psCurrentNode->psNextNode;
+            }
+
+            /* Free the node and return the old value */
+            free((char*)psCurrentNode->pcKey);
+            free(psCurrentNode);
+            oSymTable->nodeQuantity--;
+            return oldValue;
+        }
+
+        /* Move to the next node */
+        psPrevNode = psCurrentNode;
+        psCurrentNode = psCurrentNode->psNextNode;
+    }
+
+    /* Key not found */
+    return NULL;
 }
