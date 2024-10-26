@@ -156,6 +156,12 @@ size_t SymTable_getLength(SymTable_T oSymTable) {
  * Parameters:
  *   oSymTable - A pointer to the SymTable to be resized.
  */
+/* 
+ * symtablehash_resizeHashTable:
+ * Resizes the hash table when the load factor exceeds the threshold.
+ * Parameters:
+ *   oSymTable - A pointer to the SymTable to be resized.
+ */
 static void symtablehash_resizeHashTable(SymTable_T oSymTable) {
     size_t newPrimeIndex;
     size_t newBucketCount;
@@ -175,6 +181,8 @@ static void symtablehash_resizeHashTable(SymTable_T oSymTable) {
         struct SymTableNode *psCurrentNode = oSymTable->buckets[i];
         while (psCurrentNode != NULL) {
             struct SymTableNode *psNextNode = psCurrentNode->psNextNode;
+
+            /* Use the new bucket count for rehashing */
             unsigned int newIndex = symtablehash_hashFunction(psCurrentNode->pcKey, newBucketCount);
 
             /* Insert node into the new bucket array */
@@ -214,7 +222,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
 
     /* Check if resizing is needed */
     if ((double)oSymTable->nodeQuantity / oSymTable->bucketCount > LOAD_FACTOR_THRESHOLD) {
-        resizeHashTable(oSymTable);
+        symtablehash_resizeHashTable(oSymTable);
     }
 
     index = symtablehash_hashFunction(pcKey, oSymTable->bucketCount);
