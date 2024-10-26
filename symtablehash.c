@@ -299,3 +299,35 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey) {
     /* Key not found */
     return NULL;
 }
+
+/* 
+ * SymTable_map:
+ * Applies the given function *pfApply to each key-value pair in the SymTable.
+ * Parameters:
+ *   oSymTable - A pointer to the SymTable.
+ *   pfApply - A pointer to a function that takes three parameters:
+ *     - The key (const char *)
+ *     - The value (void *)
+ *     - An extra parameter provided by the caller (void *)
+ *   pvExtra - A pointer to the extra parameter that will be passed to *pfApply.
+ */
+void SymTable_map(SymTable_T oSymTable,
+                  void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra),
+                  const void *pvExtra) {
+    struct SymTableNode *psCurrentNode;
+    int i;
+
+    assert(oSymTable != NULL);
+    assert(pfApply != NULL);
+
+    i = 0;
+    while (i < BUCKET_COUNT) {
+        psCurrentNode = oSymTable->buckets[i];
+        while (psCurrentNode != NULL) {
+            /* Call the user-provided function with each key-value pair and pvExtra */
+            (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, (void*)pvExtra);
+            psCurrentNode = psCurrentNode->psNextNode;
+        }
+        i++;
+    }
+}
