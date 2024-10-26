@@ -81,6 +81,7 @@ static unsigned int symtablehash_hashFunction(const char *pcKey, size_t bucketCo
  */
 SymTable_T SymTable_new(void) {
     SymTable_T oSymTable;
+    size_t i;  /* Declare variable at the top for C90 compliance */
     
     oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
     if (oSymTable == NULL) return NULL;
@@ -108,7 +109,7 @@ SymTable_T SymTable_new(void) {
  */
 void SymTable_free(SymTable_T oSymTable) {
     struct SymTableNode *psCurrentNode, *psNextNode;
-    size_t i;
+    size_t i;  /* Declare variable at the top for C90 compliance */
 
     assert(oSymTable != NULL);
 
@@ -151,15 +152,20 @@ size_t SymTable_getLength(SymTable_T oSymTable) {
  *   oSymTable - A pointer to the SymTable to be resized.
  */
 static void resizeHashTable(SymTable_T oSymTable) {
-    size_t newPrimeIndex = oSymTable->currentPrimeIndex + 1;
+    size_t newPrimeIndex;
+    size_t newBucketCount;
+    struct SymTableNode **newBuckets;
+    size_t i;
+
+    newPrimeIndex = oSymTable->currentPrimeIndex + 1;
     if (newPrimeIndex >= PRIME_COUNT) return;  /* No more resizing */
 
-    size_t newBucketCount = primes[newPrimeIndex];
-    struct SymTableNode **newBuckets = (struct SymTableNode**)calloc(newBucketCount, sizeof(struct SymTableNode*));
+    newBucketCount = primes[newPrimeIndex];
+    newBuckets = (struct SymTableNode**)calloc(newBucketCount, sizeof(struct SymTableNode*));
     if (newBuckets == NULL) return;  /* Allocation failed, skip resizing */
 
     /* Rehash all existing nodes into the new buckets */
-    size_t i = 0;
+    i = 0;
     while (i < oSymTable->bucketCount) {
         struct SymTableNode *psCurrentNode = oSymTable->buckets[i];
         while (psCurrentNode != NULL) {
@@ -235,167 +241,6 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
     oSymTable->nodeQuantity++;
     return 1;
 }
-// #include <assert.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include "symtable.h"
-
-// /* Define the number of buckets for the hash table. */
-// #define BUCKET_COUNT 509  /* A prime number to reduce collisions */
-
-// /* Define a meaningful constant for the shift amount in the hash function */
-// #define HASH_SHIFT_AMOUNT 5
-
-// /* SymTableNodes consist of keys, values, and the address of the next node. */
-// struct SymTableNode {
-//     /* The key */
-//     char *pcKey;
-
-//     /* The value */
-//     const void *pvValue;
-
-//     /* Pointer to the next node in the linked list */
-//     struct SymTableNode *psNextNode;
-// };
-
-// /* SymTable is the managing structure, containing an array of buckets. */
-// struct SymTable {
-//     /* Array of bucket pointers */
-//     struct SymTableNode *buckets[BUCKET_COUNT];
-    
-//     /* Total number of nodes in the table */
-//     size_t nodeQuantity;
-// };
-
-// /*
-//  * symtablehash_hashFunction:
-//  * Calculates the hash code for a given key.
-//  * Parameters:
-//  *   pcKey - A pointer to the key (string) to be hashed.
-//  * Returns:
-//  *   An unsigned integer representing the hash code of the given key.
-//  */
-// static unsigned int symtablehash_hashFunction(const char *pcKey) {
-//     unsigned int hash = 0U;
-
-//     /* Validate that the key is not NULL */
-//     assert(pcKey != NULL);
-
-//     /* Calculate the hash using a left shift and add operation */
-//     while (*pcKey != '\0') {
-//         hash = (hash << HASH_SHIFT_AMOUNT) + (unsigned int)(*pcKey++);
-//     }
-//     return hash % BUCKET_COUNT;
-// }
-
-// /* 
-//  * SymTable_new:
-//  * Creates and returns a new, empty SymTable.
-//  * Returns NULL if memory allocation fails.
-//  */
-// SymTable_T SymTable_new(void) {
-//     SymTable_T oSymTable;
-//     int i;
-
-//     oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
-//     if (oSymTable == NULL) return NULL;
-
-//     i = 0;
-//     while (i < BUCKET_COUNT) {
-//         oSymTable->buckets[i] = NULL;
-//         i++;
-//     }
-    
-//     oSymTable->nodeQuantity = 0;
-//     return oSymTable;
-// }
-
-// /* 
-//  * SymTable_getLength:
-//  * Returns the number of bindings in the SymTable.
-//  * Parameters:
-//  *   oSymTable - A pointer to the SymTable.
-//  * Returns:
-//  *   The number of key-value bindings in the table.
-//  */
-// size_t SymTable_getLength(SymTable_T oSymTable) {
-//     assert(oSymTable != NULL);
-//     return oSymTable->nodeQuantity;
-// }
-
-// /* 
-//  * SymTable_free:
-//  * Frees all memory occupied by the SymTable.
-//  * Parameters:
-//  *   oSymTable - A pointer to the SymTable to be freed.
-//  */
-// void SymTable_free(SymTable_T oSymTable) {
-//     struct SymTableNode *psCurrentNode, *psNextNode;
-//     int i;
-
-//     assert(oSymTable != NULL);
-
-//     i = 0;
-//     while (i < BUCKET_COUNT) {
-//         psCurrentNode = oSymTable->buckets[i];
-//         while (psCurrentNode != NULL) {
-//             psNextNode = psCurrentNode->psNextNode;
-//             free((char*)psCurrentNode->pcKey);
-//             free(psCurrentNode);
-//             psCurrentNode = psNextNode;
-//         }
-//         i++;
-//     }
-//     free(oSymTable);
-// }
-
-// /* 
-//  * SymTable_put:
-//  * Inserts a new key-value pair into the SymTable.
-//  * Returns 1 if successful, or 0 if there is a duplicate or memory allocation fails.
-//  * Parameters:
-//  *   oSymTable - A pointer to the SymTable.
-//  *   pcKey - A string representing the key to be inserted.
-//  *   pvValue - A pointer to the value associated with the key.
-//  */
-// int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
-//     unsigned int index;
-//     struct SymTableNode *psNewNode, *psCurrentNode;
-
-//     assert(oSymTable != NULL);
-//     assert(pcKey != NULL);
-//     assert(pvValue != NULL);  /* Validate that pvValue is not NULL */
-
-//     index = symtablehash_hashFunction(pcKey);
-
-//     /* Check for duplicate keys */
-//     psCurrentNode = oSymTable->buckets[index];
-//     while (psCurrentNode != NULL) {
-//         if (strcmp(pcKey, psCurrentNode->pcKey) == 0) {
-//             return 0;
-//         }
-//         psCurrentNode = psCurrentNode->psNextNode;
-//     }
-
-//     /* Create a new node for the key-value pair */
-//     psNewNode = (struct SymTableNode*)malloc(sizeof(struct SymTableNode));
-//     if (psNewNode == NULL) return 0;
-
-//     psNewNode->pcKey = malloc(strlen(pcKey) + 1);
-//     if (psNewNode->pcKey == NULL) {
-//         free(psNewNode);
-//         return 0;
-//     }
-//     strcpy(psNewNode->pcKey, pcKey);
-//     psNewNode->pvValue = pvValue;
-
-//     /* Insert the new node into the hash table */
-//     psNewNode->psNextNode = oSymTable->buckets[index];
-//     oSymTable->buckets[index] = psNewNode;
-//     oSymTable->nodeQuantity++;
-//     return 1;
-// }
-
 /* 
  * SymTable_replace:
  * Replaces the value of an existing key in the SymTable.
