@@ -17,6 +17,11 @@
 static const size_t primes[] = {
     509, 1021, 2039, 4093, 8191, 16381, 32771, 65537, 131071, 262147
 };
+
+/* 
+ * PRIME_COUNT:
+ * The total number of prime numbers in the `primes` array.
+ */
 static const size_t PRIME_COUNT = sizeof(primes) / sizeof(primes[0]);
 
 /* Define a meaningful constant for the shift amount in the hash function */
@@ -151,7 +156,7 @@ size_t SymTable_getLength(SymTable_T oSymTable) {
  * Parameters:
  *   oSymTable - A pointer to the SymTable to be resized.
  */
-static void resizeHashTable(SymTable_T oSymTable) {
+static void symtablehash_resizeHashTable(SymTable_T oSymTable) {
     size_t newPrimeIndex;
     size_t newBucketCount;
     struct SymTableNode **newBuckets;
@@ -395,6 +400,7 @@ void SymTable_map(SymTable_T oSymTable,
     struct SymTableNode *psCurrentNode;
     size_t i;
 
+    assert(pvExtra != NULL);
     assert(oSymTable != NULL);
     assert(pfApply != NULL);
 
