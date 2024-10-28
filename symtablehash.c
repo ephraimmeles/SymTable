@@ -9,25 +9,41 @@
 #include <string.h>
 #include "symtable.h"
 
-/* Define initial number of buckets and resizing threshold. */
+/*
+ * INITIAL_BUCKET_COUNT: Sets the initial number of buckets in the hash table.
+ * Chose 509 as a prime number to help evenly distribute keys across buckets.
+ */
 #define INITIAL_BUCKET_COUNT 509
+/*
+ * LOAD_FACTOR_THRESHOLD: The maximum load factor (number of entries per bucket)
+ * allowed before the table resizes. 0.75 means the table resizes once it’s 75% full.
+ */
 #define LOAD_FACTOR_THRESHOLD 0.75
 
-/* An array of prime numbers for resizing the hash table. */
+/*
+ * primes: Array of prime numbers used for resizing the table to reduce collisions.
+ * Each prime value is selected to increase bucket count when resizing the table.
+ */
 static const size_t primes[] = {
     509, 1021, 2039, 4093, 8191, 16381, 32771, 65537, 131071, 262147
 };
 
-/* 
- * PRIME_COUNT:
- * The total number of prime numbers in the `primes` array.
+/*
+ * PRIME_COUNT: The number of prime numbers in the `primes` array.
+ * Used to check if resizing is possible or if the table has reached its max size.
  */
 static const size_t PRIME_COUNT = sizeof(primes) / sizeof(primes[0]);
 
-/* Define a meaningful constant for the shift amount in the hash function */
+/*
+ * HASH_SHIFT_AMOUNT: Defines the left shift amount used in the hash function.
+ * This helps spread the bits of each character in the key, improving the hash.
+ */
 #define HASH_SHIFT_AMOUNT 5
 
-/* SymTableNodes consist of keys, values, and the address of the next node. */
+/*
+ * SymTableNode: Represents a single entry in the hash table. Each node stores
+ * a key-value pair and a pointer to the next node in its bucket.
+ */
 struct SymTableNode {
     /* The key */
     char *pcKey;
@@ -39,7 +55,11 @@ struct SymTableNode {
     struct SymTableNode *psNextNode;
 };
 
-/* SymTable is the managing structure, containing an array of buckets. */
+/*
+ * SymTable: Main structure for managing the symbol table. 
+ * Contains an array of buckets, a count of nodes, the current bucket count, 
+ * and the index of the current resizing prime.
+ */
 struct SymTable {
     /* Array of bucket pointers */
     struct SymTableNode **buckets;
@@ -54,16 +74,13 @@ struct SymTable {
     size_t currentPrimeIndex;
 };
 
-/*--------------------------------------------------------------------*/
-
 /*
- * symtablehash_hashFunction:
- * Calculates the hash code for a given key.
- * Parameters:
- *   pcKey - A pointer to the key (string) to be hashed.
- *   bucketCount - The current number of buckets in the hash table.
- * Returns:
- *   An unsigned integer representing the hash code of the given key.
+ * Hashes a key to find its bucket index in the table.
+ * Arguments:
+ *   - `pcKey`: the string key to hash
+ *   - `bucketCount`: total number of buckets in the hash table
+ * The function calculates a hash by shifting and adding each character in `pcKey`.
+ * Returns an index (unsigned int) for storing the key-value pair.
  */
 static unsigned int symtablehash_hashFunction(const char *pcKey, size_t bucketCount) {
     unsigned int hash = 0U;
@@ -71,20 +88,16 @@ static unsigned int symtablehash_hashFunction(const char *pcKey, size_t bucketCo
     /* Validate that the key is not NULL */
     assert(pcKey != NULL);
 
-    /* Calculate the hash using a left shift and add operation */
+    
     while (*pcKey != '\0') {
         hash = (hash << HASH_SHIFT_AMOUNT) + (unsigned int)(*pcKey++);
     }
     return hash % bucketCount;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_new:
- * Creates and returns a new, empty SymTable.
- * Returns NULL if memory allocation fails.
- */
+/* Sets up a new, empty symbol table.
+   No arguments, just initializes the structure, sets up buckets array,
+   and returns a pointer to the table or NULL if there's an allocation issue. */
 SymTable_T SymTable_new(void) {
     SymTable_T oSymTable;
     
@@ -104,14 +117,10 @@ SymTable_T SymTable_new(void) {
     return oSymTable;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_free:
- * Frees all memory occupied by the SymTable.
- * Parameters:
- *   oSymTable - A pointer to the SymTable to be freed.
- */
+/* Releases all memory used by the symbol table.
+   Frees up each key-value node and the main structure itself.
+   Arguments -> `oSymTable`: the symbol table to be freed
+   Doesn't return anything but needs a valid SymTable pointer. */
 void SymTable_free(SymTable_T oSymTable) {
     struct SymTableNode *psCurrentNode, *psNextNode;
     size_t i;  /* Declare variable at the top for C90 compliance */
@@ -133,34 +142,23 @@ void SymTable_free(SymTable_T oSymTable) {
     free(oSymTable);
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_getLength:
- * Returns the number of bindings in the SymTable.
- * Parameters:
- *   oSymTable - A pointer to the SymTable.
- * Returns:
- *   The number of key-value bindings in the table.
+/*
+ * Gives the total number of key-value pairs in the table.
+ * Arguments:
+ *   - `oSymTable`: the symbol table to check
+ * Returns the number of bindings in the table as `size_t`.
  */
 size_t SymTable_getLength(SymTable_T oSymTable) {
     assert(oSymTable != NULL);
     return oSymTable->nodeQuantity;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * resizeHashTable:
- * Resizes the hash table when the load factor exceeds the threshold.
- * Parameters:
- *   oSymTable - A pointer to the SymTable to be resized.
- */
-/* 
- * symtablehash_resizeHashTable:
- * Resizes the hash table when the load factor exceeds the threshold.
- * Parameters:
- *   oSymTable - A pointer to the SymTable to be resized.
+/*
+ * Expands the hash table if it becomes too full (load factor is exceeded).
+ * Arguments:
+ *   - `oSymTable`: the symbol table to resize
+ * Sets up a larger bucket array and redistributes all nodes into new buckets.
+ * If memory allocation fails, it leaves the table unchanged.
  */
 static void symtablehash_resizeHashTable(SymTable_T oSymTable) {
     size_t newPrimeIndex;
@@ -201,16 +199,14 @@ static void symtablehash_resizeHashTable(SymTable_T oSymTable) {
     oSymTable->currentPrimeIndex = newPrimeIndex;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_put:
- * Inserts a new key-value pair into the SymTable.
- * Returns 1 if successful, or 0 if there is a duplicate or memory allocation fails.
- * Parameters:
- *   oSymTable - A pointer to the SymTable.
- *   pcKey - A string representing the key to be inserted.
- *   pvValue - A pointer to the value associated with the key.
+/*
+ * Adds a new key-value pair to the symbol table if the key doesn’t already exist.
+ * Arguments:
+ *   - `oSymTable`: the symbol table
+ *   - `pcKey`: string key to add
+ *   - `pvValue`: the value associated with `pcKey`
+ * Checks if the key exists, then allocates a new node and inserts it.
+ * Resizes the table if it gets too full. Returns integer, either 1 on success, 0 on failure or if key exists.
  */
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
     unsigned int index;
@@ -255,16 +251,13 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
     return 1;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_replace:
- * Replaces the value of an existing key in the SymTable.
- * Returns the old value or NULL if the key is not found.
- * Parameters:
- *   oSymTable - A pointer to the SymTable.
- *   pcKey - A string representing the key whose value needs replacement.
- *   pvValue - A pointer to the new value.
+/*
+ * Replaces the value of an existing key in the table.
+ * Arguments:
+ *   - `oSymTable`: the symbol table
+ *   - `pcKey`: the key whose value we want to update
+ *   - `pvValue`: the new value to store
+ * Finds the key, updates its value if found, and returns the old value. Returns NULL if the key doesn’t exist.
  */
 void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
     unsigned int index;
@@ -289,12 +282,10 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
     return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
 /* 
  * SymTable_contains:
  * Checks if the SymTable contains a specified key.
- * Returns 1 if the key is found, 0 otherwise.
+ * Returns integer, either 1 if the key is found, 0 otherwise.
  * Parameters:
  *   oSymTable - A pointer to the SymTable.
  *   pcKey - A string representing the key to search for.
@@ -318,14 +309,12 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey) {
     return 0;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* 
- * SymTable_get:
- * Returns the value associated with the specified key or NULL if not found.
- * Parameters:
- *   oSymTable - A pointer to the SymTable.
- *   pcKey - A string representing the key whose value is to be retrieved.
+/*
+ * Gets the value associated with a specific key.
+ * Arguments:
+ *   - `oSymTable`: the symbol table
+ *   - `pcKey`: the key whose value we want to retrieve
+ * Finds and returns the value if `pcKey` exists in the table; returns NULL if the key isn’t found.
  */
 void *SymTable_get(SymTable_T oSymTable, const char *pcKey) {
     unsigned int index;
@@ -345,8 +334,6 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey) {
     }
     return NULL;
 }
-
-/*--------------------------------------------------------------------*/
 
 /* 
  * SymTable_remove:
@@ -388,8 +375,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey) {
     }
     return NULL;
 }
-
-/*--------------------------------------------------------------------*/
 
 /* 
  * SymTable_map:

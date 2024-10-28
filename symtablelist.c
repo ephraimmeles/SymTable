@@ -3,16 +3,15 @@
 /* Author: Ephraim Meles                                              */
 /*--------------------------------------------------------------------*/
 
-
 #include <assert.h>
 #include <stdlib.h>
 #include "symtable.h"
 #include <string.h>
-
-/* SymTableNodes consist of keys, values, and the address of the next
-node. SymTableNodes form a singly linked list.
-form a list.  */
-
+/*
+ * SymTableNode: Represents a single entry in the symbol table.
+ * Each node has a key-value pair and a pointer to the next node.
+ * These nodes are linked together to form a singly linked list.
+ */
 struct SymTableNode
 {
    /* The key */
@@ -25,9 +24,11 @@ struct SymTableNode
    struct SymTableNode *psNextNode;
 };
 
-/* A SymTable is a "dummy" node that points to the first SymTableNode. 
-This is the managing structure - only needs two fields */
-
+/*
+ * SymTable: Main structure for managing the symbol table.
+ * Contains the head pointer to the list of SymTableNodes and a count of nodes.
+ * Acts as the entry point to access the linked list of key-value pairs.
+ */
 struct SymTable
 {
    /* The address of the first SymTableNode. */
@@ -37,6 +38,14 @@ struct SymTable
    size_t nodeQuantity;
 };
 
+/*
+ * SymTable_new:
+ * Creates an empty symbol table.
+ * Arguments: None
+ * Behavior: Allocates memory for a new `SymTable` structure, initializes
+ *           `psFirstNode` to NULL, and sets `nodeQuantity` to 0.
+ * Returns: A pointer to the new SymTable, or NULL if memory allocation fails.
+ */
 SymTable_T SymTable_new(void)
 {
    SymTable_T oSymTable;
@@ -50,8 +59,14 @@ SymTable_T SymTable_new(void)
    return oSymTable;
 }
 
-/* Takes in oSymTable, returns its number of bindings. */
-
+/*
+ * SymTable_getLength:
+ * Returns the number of key-value pairs in the symbol table.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ * Behavior: Checks the `nodeQuantity` field of the table to get the count.
+ * Returns: The total number of bindings in the table as a `size_t`.
+ */
 size_t SymTable_getLength(SymTable_T oSymTable)
 {
    
@@ -60,10 +75,15 @@ size_t SymTable_getLength(SymTable_T oSymTable)
 return oSymTable-> nodeQuantity;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Takes in oSymTable and frees all the memory that it occupies. */
-
+/*
+ * SymTable_free:
+ * Frees all memory associated with the symbol table.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table to free
+ * Behavior: Iterates through each node in the linked list, frees each key 
+ *           and node, and finally frees the table itself.
+ * Returns: Nothing (void).
+ */
 void SymTable_free(SymTable_T oSymTable)
 {
    struct SymTableNode *psCurrentNode;
@@ -85,12 +105,17 @@ void SymTable_free(SymTable_T oSymTable)
    free(oSymTable);
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Returns 1 (TRUE) if oSymTable does not contain a binding with
-key pcKey. Returns 0 (FALSE) if either there is insufficient memory
-or oSymTable contains any binding with key pcKey. */
-
+/*
+ * SymTable_put:
+ * Adds a new key-value pair to the symbol table if the key is unique.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pcKey`: string key for the new binding
+ *   - `pvValue`: pointer to the value associated with the key
+ * Behavior: Checks if `pcKey` already exists. If not, allocates a new node
+ *           with `pcKey` and `pvValue` and adds it to the front of the list.
+ * Returns: 1 if added successfully, 0 if the key already exists or if memory fails.
+ */
 int SymTable_put(SymTable_T oSymTable, 
 const char *pcKey, const void *pvValue)
 {
@@ -138,12 +163,17 @@ const char *pcKey, const void *pvValue)
    return 1;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* In the bindings of oSymTable with a key equal to pcKey, replace 
-the binding's value and RETURN the previous value. Otherwise,
-return NULL, table remains unchanged. */
-
+/*
+ * SymTable_replace:
+ * Replaces the value associated with an existing key in the symbol table.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pcKey`: string key for the entry to update
+ *   - `pvValue`: new value to associate with `pcKey`
+ * Behavior: Searches the list for `pcKey`. If found, replaces its value
+ *           with `pvValue` and returns the previous value.
+ * Returns: The old value if replaced, or NULL if `pcKey` is not found.
+ */
 void *SymTable_replace(SymTable_T oSymTable,
      const char *pcKey, const void *pvValue)
 {
@@ -170,11 +200,15 @@ void *SymTable_replace(SymTable_T oSymTable,
 return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Returns 1(TRUE) if oSymTable contains a binding with a key
-equal to pcKey. Otherwise return 0(FALSE). */
-
+/*
+ * SymTable_contains:
+ * Checks if the symbol table has an entry with the given key.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pcKey`: string key to look for
+ * Behavior: Searches the list for `pcKey`.
+ * Returns: 1 if `pcKey` exists in the table, 0 otherwise.
+ */
 int SymTable_contains(SymTable_T oSymTable, const char *pcKey)
 {
    struct SymTableNode* psCurrentNode;
@@ -196,11 +230,15 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey)
 return 0;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Returns the value of the binding within oSymTable with a key equal
-to pcKey. Otherwise return NULL. */
-
+/*
+ * SymTable_get:
+ * Retrieves the value associated with a given key.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pcKey`: string key to retrieve
+ * Behavior: Searches the list for `pcKey`. If found, returns the value associated with it.
+ * Returns: The value if `pcKey` is found, or NULL if `pcKey` does not exist.
+ */
   void *SymTable_get(SymTable_T oSymTable, const char *pcKey)
 {
    struct SymTableNode* psCurrentNode;
@@ -222,12 +260,16 @@ to pcKey. Otherwise return NULL. */
 return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Removes bindings in oSymTable with key == pcKey and RETURNS
-their value. Otherwise, return NULL and leave oSymTable 
-untouched. */
-
+/*
+ * SymTable_remove:
+ * Removes the key-value pair associated with the given key.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pcKey`: string key to remove
+ * Behavior: Searches for `pcKey`, removes the node if found, adjusts the links,
+ *           and decrements `nodeQuantity`.
+ * Returns: The removed value if `pcKey` is found, or NULL if `pcKey` does not exist.
+ */
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey)
 {
    struct SymTableNode* psCurrentNode;
@@ -272,12 +314,17 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey)
 return NULL;
 }
 
-/*--------------------------------------------------------------------*/
-
-/* Applys function *pfApply to each binding in SymTable, passing
-pvExtra and calling (*pfApply)(pcKey, pvValue, pvExtra) for 
-each pcKey/pvValue binding in oSymTable. */
-
+/*
+ * SymTable_map:
+ * Applies a given function to each key-value pair in the symbol table.
+ * Arguments:
+ *   - `oSymTable`: pointer to the symbol table
+ *   - `pfApply`: function to call on each key-value pair
+ *   - `pvExtra`: additional data to pass to `pfApply`
+ * Behavior: Iterates through each node in the table and calls `pfApply` 
+ *           with the key, value, and `pvExtra`.
+ * Returns: Nothing (void).
+ */
  void SymTable_map(SymTable_T oSymTable,
      void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra),
      const void *pvExtra)
