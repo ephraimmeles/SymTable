@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "symtable.h": "c"
+        "symtable.h": "c",
+        "string.h": "c"
     }
 }

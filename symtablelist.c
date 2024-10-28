@@ -97,7 +97,7 @@ const char *pcKey, const void *pvValue)
    struct SymTableNode *psNewNode;
    /* Travelling, placeholder node */
    struct SymTableNode *psCurrentNode;
-   assert(pvValue != NULL);
+   
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
 
@@ -149,7 +149,7 @@ void *SymTable_replace(SymTable_T oSymTable,
 {
    struct SymTableNode* psCurrentNode;
    void *oldValue;
-   
+
    assert(pvValue != NULL);
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
