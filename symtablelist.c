@@ -150,7 +150,7 @@ void *SymTable_replace(SymTable_T oSymTable,
    struct SymTableNode* psCurrentNode;
    void *oldValue;
 
-   assert(pvValue != NULL);
+   
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
 
