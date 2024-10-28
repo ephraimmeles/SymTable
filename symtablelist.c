@@ -283,7 +283,7 @@ each pcKey/pvValue binding in oSymTable. */
      const void *pvExtra)
 {
    struct SymTableNode *psCurrentNode;
-   assert(pvExtra != NULL); 
+   
    assert(oSymTable != NULL);
    assert(pfApply != NULL);
 
