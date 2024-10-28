@@ -70,7 +70,22 @@ What warnings does critTer generate on symtablelist.c, and what are your
 disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
-None
+
+symtablelist.c: line 121: medium priority:
+Do you want to validate 'pvValue' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
+
+symtablelist.c: line 179: medium priority:
+Do you want to validate 'pvValue' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
+
+
+symtablelist.c: line 331: medium priority:
+Do you want to validate 'pvExtra' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
 
 
 ------------------------------------------------------------------------
