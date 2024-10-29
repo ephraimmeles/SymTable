@@ -393,7 +393,7 @@ void SymTable_map(SymTable_T oSymTable,
     struct SymTableNode *psCurrentNode;
     size_t i;
 
-    assert(pvExtra != NULL);
+    
     assert(oSymTable != NULL);
     assert(pfApply != NULL);
 
