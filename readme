@@ -104,7 +104,25 @@ What warnings does critTer generate on symtablehash.c, and what are your
 disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
-None
+
+symtablehash.c: line 211: medium priority:
+Do you want to validate 'pvValue' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
+
+symtablehash.c: line 262: medium priority:
+Do you want to validate 'pvValue' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
+
+
+symtablehash.c: line 392: medium priority:
+Do you want to validate 'pvExtra' through an assert?
+
+I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
 
 
 ------------------------------------------------------------------------
@@ -130,6 +148,6 @@ The non-expanding hash table implementation with:
 The expanding hash table implementation with:
 -- 50 bindings consumed ____0____ seconds.
 -- 500 bindings consumed ___0_____ seconds.
--- 5000 bindings consumed __ 0.007325______ seconds.
--- 50000 bindings consumed ___0.412568_____ seconds.
--- 500000 bindings consumed ___68.274124_____ seconds.
+-- 5000 bindings consumed __ 0.005325______ seconds.
+-- 50000 bindings consumed ___0.131886 seconds_____ seconds.
+-- 500000 bindings consumed ___1.419472 seconds_____ seconds.
