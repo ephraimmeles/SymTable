@@ -214,7 +214,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue) {
 
     assert(oSymTable != NULL);
     assert(pcKey != NULL);
-    assert(pvValue != NULL);  /* Validate that pvValue is not NULL */
+    
 
     /* Check if resizing is needed */
     if ((double)oSymTable->nodeQuantity / oSymTable->bucketCount > LOAD_FACTOR_THRESHOLD) {

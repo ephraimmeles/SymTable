@@ -75,17 +75,20 @@ symtablelist.c: line 121: medium priority:
 Do you want to validate 'pvValue' through an assert?
 
 I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
 
 symtablelist.c: line 179: medium priority:
 Do you want to validate 'pvValue' through an assert?
 
 I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
 
 
 symtablelist.c: line 331: medium priority:
 Do you want to validate 'pvExtra' through an assert?
 
 I disagree with this warning because the value of the symbol table can be NULL
+(NULL is valid here)
 
 
 ------------------------------------------------------------------------
