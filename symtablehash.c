@@ -266,7 +266,7 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
 
     assert(oSymTable != NULL);
     assert(pcKey != NULL);
-    assert(pvValue != NULL);  /* Validate that pvValue is not NULL */
+    
 
     index = symtablehash_hashFunction(pcKey, oSymTable->bucketCount);
 
